@@ -173,6 +173,10 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
     */
     
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(audioRouteChange:)
+                                                 name:AVAudioSessionRouteChangeNotification
+                                               object:nil];
     /*
     if (checkError(AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange,
                                                    sessionPropertyListener,
@@ -465,6 +469,9 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
                    "Couldn't deactivate the audio session");        
         
         */
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:AVAudioSessionRouteChangeNotification
+                                                      object:nil];
         /*
         checkError(AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioRouteChange,
                                                                   sessionPropertyListener,
@@ -505,6 +512,15 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
 	}
     
     return _playing;
+}
+
+#pragma mark -
+
+- (void)audioRouteChange:(NSNotification *)notification
+{
+    if ([self checkAudioRoute]) {
+        [self checkSessionProperties];
+    }
 }
 
 @end
